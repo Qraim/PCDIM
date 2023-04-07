@@ -248,8 +248,10 @@
   /usr/include/qt/QtCore/qconfig.h \
   /usr/include/qt/QtCore/qcontainerfwd.h \
   /usr/include/qt/QtCore/qcontainertools_impl.h \
+  /usr/include/qt/QtCore/qcoreapplication.h \
   /usr/include/qt/QtCore/qcoreevent.h \
   /usr/include/qt/QtCore/qdatastream.h \
+  /usr/include/qt/QtCore/qeventloop.h \
   /usr/include/qt/QtCore/qfile.h \
   /usr/include/qt/QtCore/qfiledevice.h \
   /usr/include/qt/QtCore/qflags.h \
@@ -310,8 +312,10 @@
   /usr/include/qt/QtGui/qfont.h \
   /usr/include/qt/QtGui/qfontinfo.h \
   /usr/include/qt/QtGui/qfontmetrics.h \
+  /usr/include/qt/QtGui/qguiapplication.h \
   /usr/include/qt/QtGui/qicon.h \
   /usr/include/qt/QtGui/qimage.h \
+  /usr/include/qt/QtGui/qinputmethod.h \
   /usr/include/qt/QtGui/qkeysequence.h \
   /usr/include/qt/QtGui/qmatrix.h \
   /usr/include/qt/QtGui/qpaintdevice.h \
@@ -333,7 +337,9 @@
   /usr/include/qt/QtGui/qvalidator.h \
   /usr/include/qt/QtGui/qvector2d.h \
   /usr/include/qt/QtGui/qwindowdefs.h \
+  /usr/include/qt/QtWidgets/QApplication \
   /usr/include/qt/QtWidgets/QComboBox \
+  /usr/include/qt/QtWidgets/QDesktopWidget \
   /usr/include/qt/QtWidgets/QDialog \
   /usr/include/qt/QtWidgets/QHeaderView \
   /usr/include/qt/QtWidgets/QLabel \
@@ -347,8 +353,10 @@
   /usr/include/qt/QtWidgets/qabstractscrollarea.h \
   /usr/include/qt/QtWidgets/qabstractslider.h \
   /usr/include/qt/QtWidgets/qabstractspinbox.h \
+  /usr/include/qt/QtWidgets/qapplication.h \
   /usr/include/qt/QtWidgets/qboxlayout.h \
   /usr/include/qt/QtWidgets/qcombobox.h \
+  /usr/include/qt/QtWidgets/qdesktopwidget.h \
   /usr/include/qt/QtWidgets/qdialog.h \
   /usr/include/qt/QtWidgets/qframe.h \
   /usr/include/qt/QtWidgets/qgridlayout.h \

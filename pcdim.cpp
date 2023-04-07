@@ -80,28 +80,28 @@ void pcdim::clearAll()
 
 float pcdim::calculdebit()
 {
-    float vitesse = inputs[2]->text().toFloat(); // Vitesse from QLineEdit
-    float diametre = inputs[1]->text().toFloat(); // Diametre intérieur from QLineEdit
+    float vitesse = inputs[2]->text().toFloat(); // Vitesse de QLineEdit
+    float diametre = inputs[1]->text().toFloat(); // Diametre intérieur de QLineEdit
 
-    float debit = (vitesse * M_PI * std::pow((diametre / 2), 2)) / 1000; // Debit in m³/h
+    float debit = (vitesse * M_PI * std::pow((diametre / 2), 2)) / 1000; // Debit m³/h
     return debit;
 }
 
 float pcdim::calculvitesse()
 {
-    float debit = inputs[0]->text().toFloat(); // Debit from QLineEdit
-    float diametre = inputs[1]->text().toFloat(); // Diametre intérieur from QLineEdit
+    float debit = inputs[0]->text().toFloat(); // Debit de QLineEdit
+    float diametre = inputs[1]->text().toFloat(); // Diametre intérieur de QLineEdit
 
-    float vitesse = (1000 * debit) / (M_PI * std::pow((diametre / 2), 2)); // Vitesse in m/s
+    float vitesse = (1000 * debit) / (M_PI * std::pow((diametre / 2), 2)); // Vitesse m/s
     return vitesse;
 }
 
 float pcdim::calculdiametre()
 {
-    float debit = inputs[0]->text().toFloat(); // Debit from QLineEdit
-    float vitesse = inputs[2]->text().toFloat(); // Vitesse from QLineEdit
+    float debit = inputs[0]->text().toFloat(); // Debit de QLineEdit
+    float vitesse = inputs[2]->text().toFloat(); // Vitesse de QLineEdit
 
-    float diametre = 2 * std::sqrt((1000 * debit) / (M_PI * vitesse)); // Diametre intérieur in mm
+    float diametre = 2 * std::sqrt((1000 * debit) / (M_PI * vitesse)); // Diametre intérieur mm
     return diametre;
 }
 
@@ -223,25 +223,25 @@ bool pcdim::eventFilter(QObject *obj, QEvent *event)
             {
                 if (keyEvent->modifiers() == Qt::ShiftModifier)
                 {
-                    // Shift + Enter: Calculate
+                    // Shift + Entrer: Calculer
                     calculate();
                     return true;
                 }
                 else if (keyEvent->modifiers() == Qt::ControlModifier && i > 0)
                 {
-                    // Control + Enter: Go to the previous input
+                    // Control : Champ précédent
                     inputs[i - 1]->setFocus();
                     return true;
                 }
                 else if (i < 4)
                 {
-                    // Enter: Go to the next input
+                    // Enter: Champ suivant
                     inputs[i + 1]->setFocus();
                     return true;
                 }
                 else if (i == 4)
                 {
-                    // If all inputs are filled except "Perte", calculate
+                    // Si tout est remplis sauf perte calculer
                     bool allFilled = true;
                     for (int j = 0; j < 4; ++j)
                     {
@@ -269,12 +269,17 @@ void pcdim::showDiametersTable()
     diametersDialog->setWindowTitle("Tableau des diamètres");
     QVBoxLayout *dialogLayout = new QVBoxLayout(diametersDialog);
 
-    QTableWidget *tableWidget = new QTableWidget(diametersDialog);
-    tableWidget->setColumnCount(4);
-    tableWidget->setHorizontalHeaderLabels({"Matière", "Pression", "Diamètre (mm)","Diametre intérieur"});
-    tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    QTabWidget *tabWidget = new QTabWidget(diametersDialog);
 
-    // Sample data to show the table
+    // Set dialog size to a percentage of the screen size
+    const int dialogWidthPercentage = 80;
+    const int dialogHeightPercentage = 80;
+    QRect screenGeometry = QApplication::desktop()->screenGeometry();
+    int screenWidth = screenGeometry.width() * dialogWidthPercentage / 100;
+    int screenHeight = screenGeometry.height() * dialogHeightPercentage / 100;
+    diametersDialog->resize(screenWidth, screenHeight);
+
+
     std::map<QString, std::map<QString, std::vector<std::pair<float, float>>>> materials = {
             {"PEBD", {{"6", {{16, 12}, {20, 15.4}, {25, 19.4}, {32, 24.8}}}}},
             {"PEHD", {
@@ -289,24 +294,53 @@ void pcdim::showDiametersTable()
                      }},
     };
 
-    int row = 0;
     for (const auto& material : materials) {
-        for (const auto& pressure : material.second) {
-            for (const auto& diameter : pressure.second) {
-                tableWidget->insertRow(row);
-                tableWidget->setItem(row, 0, new QTableWidgetItem(material.first));
-                tableWidget->setItem(row, 1, new QTableWidgetItem(pressure.first));
-                tableWidget->setItem(row, 2, new QTableWidgetItem(QString::number(diameter.first)));
-                tableWidget->setItem(row, 3, new QTableWidgetItem(QString::number(diameter.second)));
+        QTableWidget *tableWidget = new QTableWidget(diametersDialog);
 
+        // On tri les pressions
+        std::vector<QString> sortedPressures;
+        for (const auto& pressure : material.second) {
+            sortedPressures.push_back(pressure.first);
+        }
+        std::sort(sortedPressures.begin(), sortedPressures.end(),
+                  [](const QString &a, const QString &b) { return a.toFloat() < b.toFloat(); });
+
+        tableWidget->setColumnCount(sortedPressures.size() + 1);
+        tableWidget->setRowCount(0);
+
+        QStringList headerLabels;
+        headerLabels << "Pression";
+        for (const auto& pressure : sortedPressures) {
+            headerLabels << pressure;
+        }
+        tableWidget->setHorizontalHeaderLabels(headerLabels);
+        tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+        int maxRows = 0;
+        for (const auto& pressure : material.second) {
+            maxRows = std::max(maxRows, static_cast<int>(pressure.second.size()));
+        }
+
+        tableWidget->setRowCount(maxRows);
+
+        int col = 1;
+        for (const auto& pressureStr : sortedPressures) {
+            auto& pressureData = material.second.at(pressureStr);
+            int row = 0;
+            for (const auto& diameter : pressureData) {
+                QTableWidgetItem *item = new QTableWidgetItem(QString("(%1, %2)").arg(diameter.second).arg(diameter.first));
+                tableWidget->setItem(row, col, item);
                 row++;
             }
+            col++;
         }
+
+        tabWidget->addTab(tableWidget, material.first);
     }
 
-
-
-    dialogLayout->addWidget(tableWidget);
+    dialogLayout->addWidget(tabWidget);
     diametersDialog->setLayout(dialogLayout);
     diametersDialog->exec();
 }
+
+
